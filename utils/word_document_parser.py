@@ -1,16 +1,17 @@
 import docx
+import re
 
-def parse_word_document(file_path):
+def parse_word_document(file):
     """
-    Parse a Word document and extract text.
+    Parse a Word document and return the text content.
 
     Args:
-        file_path (str): Path to the Word document file
+        file (file-like object): The uploaded Word document file.
 
     Returns:
-        str: Extracted text from the Word document
+        str: Text content of the Word document.
     """
-    doc = docx.Document(file_path)
+    doc = docx.Document(file)
     text = []
     for para in doc.paragraphs:
         text.append(para.text)
@@ -18,21 +19,16 @@ def parse_word_document(file_path):
 
 def identify_chapters(text):
     """
-    Identify and extract text for Chapter 1, Chapter 2, and Chapter 3.
+    Identify chapters in the text content.
 
     Args:
-        text (str): Extracted text from the Word document
+        text (str): Text content of the Word document.
 
     Returns:
-        dict: Dictionary containing text for each chapter
+        list: List of chapter titles.
     """
-    chapters = {}
-    chapter_headers = ['Chapter 1', 'Chapter 2', 'Chapter 3']
-    for header in chapter_headers:
-        start_index = text.find(header)
-        if start_index != -1:
-            end_index = text.find(next((h for h in chapter_headers if h != header), None), start_index)
-            if end_index == -1:
-                end_index = len(text)
-            chapters[header] = text[start_index:end_index]
+    chapters = []
+    for line in text.split('\n'):
+        if re.match(r'^Chapter \d+:.*$', line):
+            chapters.append(line)
     return chapters
